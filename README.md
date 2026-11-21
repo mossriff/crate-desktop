@@ -22,8 +22,9 @@ whatsoever with it on my system. (Arch + KDE)
 ### About AI
 
 I'll be upfront: **most of Crate's code was written with an AI assistant** (Claude).
-I described what I wanted, used it, and pushed back until it worked the way I wanted. I
-did make sure it runs efficiently: it idles at well under 1% CPU and plays music in about
+I described what I wanted, used it, and changed it until it worked the way I wanted. I
+did make sure it runs efficiently, as I know many "vibe coded" apps can be in the gutter when it comes to
+performance and stability: it idles at well under 1% CPU and plays music in about
 50 MB of memory. Which is better than Spotify's app by a big margin.
 
 I'm largely against the use of AI use in most subjects. This was a small thing I wanted for my own
