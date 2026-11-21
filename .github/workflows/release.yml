@@ -24,7 +24,8 @@ jobs:
             libasound2-dev libdbus-1-dev libfontconfig1-dev libfreetype-dev libwayland-dev \
             libxkbcommon-dev libxkbcommon-x11-dev libxcb1-dev libx11-xcb-dev libvulkan-dev libzstd-dev
       - uses: dtolnay/rust-toolchain@stable
-      - uses: Swatinem/rust-cache@v2
+      # no build cache: a cached build can point at the unpacked romaji dictionary, which a fresh
+      # checkout doesn't have (releases are rare, so a full build is fine)
       - name: Build
         run: native/tools/appimage.sh
       - uses: actions/upload-artifact@v4
