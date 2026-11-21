@@ -1,0 +1,4 @@
+target/
+# the extracted dictionary is rebuilt from the archive next to it
+.lindera-cache/*/*/
+*.part*

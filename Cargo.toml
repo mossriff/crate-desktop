@@ -1,0 +1,12 @@
+[workspace]
+members = ["core", "native"]
+resolver = "2"
+
+[profile.dev.package."*"]
+opt-level = 2          # keep audio decoding fast even in debug builds
+
+[profile.release]
+lto = "fat"          # whole-program optimisation: smaller and a bit faster
+codegen-units = 1
+strip = true
+opt-level = 3
