@@ -455,7 +455,7 @@ impl Shell {
                     .gap_3()
                     .child(div().text_lg().text_color(text()).font_weight(FontWeight::SEMIBOLD).child("Search any song, album or artist."))
                     .child("Songs you already have are marked with a green check and play straight away.")
-                    .child("Anything else: drag it onto a playlist in the sidebar (or click +) and Crate downloads it for you.")
+                    .child("Anything else: drag it onto a playlist in the sidebar (or click +) and crate downloads it for you.")
                     .into_any_element(),
             );
         } else {

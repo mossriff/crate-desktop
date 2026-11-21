@@ -233,7 +233,7 @@ impl Shell {
                 this.model.update(cx, |m, cx| {
                     m.back(cx);
                     if changed {
-                        m.toast("Saved. Restart Crate to use the new server.", false, cx);
+                        m.toast("Saved. Restart crate to use the new server.", false, cx);
                     }
                 });
             });

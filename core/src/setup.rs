@@ -1,5 +1,5 @@
 //! First-run setup: connect to (or install) Navidrome, sign in to Soulseek, and fetch the helper
-//! programs Crate runs. Nothing here needs root: programs Crate downloads go in
+//! programs crate runs. Nothing here needs root: programs crate downloads go in
 //! ~/.local/share/crate/bin, and a Navidrome it sets up runs as a systemd *user* service.
 use anyhow::{anyhow, bail, Context, Result};
 use serde_json::{json, Value};
@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::Duration;
 
-/// Port a Navidrome set up by Crate listens on (only on this computer).
+/// Port a Navidrome set up by crate listens on (only on this computer).
 pub const NAVIDROME_PORT: u16 = 4533;
 const SLSK_SERVER: &str = "server.slsknet.org:2242";
 
@@ -17,7 +17,7 @@ fn data_dir() -> PathBuf {
     dirs::data_dir().unwrap_or_else(|| PathBuf::from(".")).join("crate")
 }
 
-/// Where Crate keeps programs it downloaded itself.
+/// Where crate keeps programs it downloaded itself.
 pub fn bin_dir() -> PathBuf {
     data_dir().join("bin")
 }
@@ -26,7 +26,7 @@ fn config_path() -> Result<PathBuf> {
     Ok(dirs::config_dir().context("no config folder")?.join("crate/config.json"))
 }
 
-/// Full path of a helper program: on PATH, or one Crate downloaded.
+/// Full path of a helper program: on PATH, or one crate downloaded.
 pub fn tool_path(name: &str) -> Option<PathBuf> {
     let own = bin_dir().join(name);
     let on_path = std::env::var_os("PATH").and_then(|p| std::env::split_paths(&p).map(|d| d.join(name)).find(|f| is_exe(f)));
@@ -38,7 +38,7 @@ fn is_exe(p: &Path) -> bool {
     std::fs::metadata(p).map(|m| m.is_file() && m.permissions().mode() & 0o111 != 0).unwrap_or(false)
 }
 
-/// PATH with Crate's own bin folder added, for running helpers that run other helpers
+/// PATH with crate's own bin folder added, for running helpers that run other helpers
 /// (sockseek starts yt-dlp).
 pub fn child_path() -> std::ffi::OsString {
     let mut dirs = vec![bin_dir()];
@@ -55,15 +55,15 @@ pub struct Tool {
     pub name: &'static str,
     pub what: &'static str,
     pub found: bool,
-    /// Crate downloads it into its own folder (no password needed).
+    /// crate downloads it into its own folder (no password needed).
     pub auto: bool,
     /// Installed with the system's package manager, which asks for your password.
     pub system: bool,
-    /// The command to install it by hand, when Crate can't do it for you.
+    /// The command to install it by hand, when crate can't do it for you.
     pub install: Option<String>,
 }
 
-/// The programs Crate uses and whether they're installed.
+/// The programs crate uses and whether they're installed.
 pub fn tools() -> Vec<Tool> {
     let sys = |name: &'static str, what: &'static str| {
         let cmd = system_install(name);
@@ -116,9 +116,9 @@ fn install_args(pm: &str, tool: &str) -> Option<Vec<String>> {
 }
 
 /// Install ffmpeg or fpcalc with the package manager. pkexec shows the desktop's own password
-/// window (the same one software centres use); Crate never sees the password.
+/// window (the same one software centres use); crate never sees the password.
 fn install_system(tool: &str) -> Result<()> {
-    let args = system_install(tool).ok_or_else(|| anyhow!("Crate doesn't know how to install {tool} on this system"))?;
+    let args = system_install(tool).ok_or_else(|| anyhow!("crate doesn't know how to install {tool} on this system"))?;
     let pkexec = tool_path("pkexec").ok_or_else(|| anyhow!("can't ask for your password here (no pkexec); run: sudo {}", args.join(" ")))?;
     let prog = tool_path(&args[0]).unwrap_or_else(|| PathBuf::from(&args[0]));
     let out = Command::new(pkexec).arg(prog).args(&args[1..]).output()?;
@@ -146,7 +146,7 @@ fn arch() -> Result<&'static str> {
 fn http() -> reqwest::blocking::Client {
     reqwest::blocking::Client::builder()
         .timeout(Duration::from_secs(600))
-        .user_agent("Crate (desktop music player)")
+        .user_agent("crate (desktop music player)")
         .build()
         .expect("http client")
 }
@@ -187,7 +187,7 @@ fn fetch_tar(url: &str, dir: &Path, program: &str) -> Result<PathBuf> {
     Ok(dir.join(program))
 }
 
-/// Install a helper: sockseek and yt-dlp are downloaded into Crate's own folder; ffmpeg and
+/// Install a helper: sockseek and yt-dlp are downloaded into crate's own folder; ffmpeg and
 /// fpcalc come from the package manager (a password window pops up).
 pub fn install_tool(name: &str) -> Result<()> {
     let dir = bin_dir();
@@ -205,7 +205,7 @@ pub fn install_tool(name: &str) -> Result<()> {
             std::fs::set_permissions(dir.join("yt-dlp"), std::fs::Permissions::from_mode(0o755))?;
         }
         "ffmpeg" | "fpcalc" => install_system(name)?,
-        _ => bail!("Crate can't install {name} by itself"),
+        _ => bail!("crate can't install {name} by itself"),
     }
     Ok(())
 }
@@ -274,7 +274,7 @@ fn write_private(path: &Path, bytes: &[u8]) -> Result<()> {
     Ok(())
 }
 
-/// Where a Crate-installed Navidrome lives: program, settings and its database.
+/// Where a crate-installed Navidrome lives: program, settings and its database.
 pub fn navidrome_dir() -> PathBuf {
     data_dir().join("navidrome")
 }
@@ -289,7 +289,7 @@ pub fn install_navidrome(music: &Path, user: &str, password: &str, step: &dyn Fn
         bail!("A Navidrome is already running on this computer ({url}). Choose \u{201c}I already have one\u{201d} and sign in to it instead.");
     }
     if tool_path("systemctl").is_none() {
-        bail!("This system doesn't use systemd, so Crate can't keep Navidrome running by itself. Install Navidrome yourself (navidrome.org) and choose \u{201c}I already have one\u{201d}.");
+        bail!("This system doesn't use systemd, so crate can't keep Navidrome running by itself. Install Navidrome yourself (navidrome.org) and choose \u{201c}I already have one\u{201d}.");
     }
     let dir = navidrome_dir();
     step("Downloading Navidrome…");
@@ -323,7 +323,7 @@ pub fn prepare_navidrome(dir: &Path, music: &Path, port: u16) -> Result<PathBuf>
     let bin = fetch_tar(&asset, dir, "navidrome")?;
     std::fs::create_dir_all(dir.join("data"))?;
     let toml = format!(
-        "# Written by Crate. Navidrome's options: https://www.navidrome.org/docs/usage/configuration-options/\n\
+        "# Written by crate. Navidrome's options: https://www.navidrome.org/docs/usage/configuration-options/\n\
          MusicFolder = {music:?}\nDataFolder = {data:?}\nAddress = \"127.0.0.1\"\nPort = {port}\n",
         music = music.to_string_lossy(),
         data = dir.join("data").to_string_lossy(),
@@ -336,7 +336,7 @@ fn write_unit(bin: &Path, dir: &Path) -> Result<()> {
     let units = dirs::config_dir().context("no config folder")?.join("systemd/user");
     std::fs::create_dir_all(&units)?;
     let unit = format!(
-        "[Unit]\nDescription=Navidrome music server (set up by Crate)\nAfter=network.target\n\n\
+        "[Unit]\nDescription=Navidrome music server (set up by crate)\nAfter=network.target\n\n\
          [Service]\nExecStart={bin:?} --configfile {conf:?}\nWorkingDirectory={dir:?}\nRestart=on-failure\n\n\
          [Install]\nWantedBy=default.target\n",
         bin = bin.to_string_lossy(),

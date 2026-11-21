@@ -1,4 +1,4 @@
-//! crate-core: everything Crate does that isn't drawing the window.
+//! crate-core: everything crate does that isn't drawing the window.
 //! Kept free of any UI framework.
 pub mod audio_cache;
 pub mod loudness;
@@ -17,7 +17,7 @@ pub mod settings;
 pub mod setup;
 pub mod import;
 
-/// Crate's cache folder (~/.cache/crate).
+/// crate's cache folder (~/.cache/crate).
 pub fn cache_dir() -> std::path::PathBuf {
     dirs::cache_dir().unwrap_or_else(|| std::path::PathBuf::from(".cache")).join("crate")
 }
@@ -28,7 +28,7 @@ pub fn http_get(url: &str) -> anyhow::Result<Vec<u8>> {
     let c = HTTP.get_or_init(|| {
         reqwest::blocking::Client::builder()
             .timeout(std::time::Duration::from_secs(15))
-            .user_agent("Crate/0.1 (desktop music player)")
+            .user_agent("crate/0.1 (desktop music player)")
             .build()
             .expect("http client")
     });

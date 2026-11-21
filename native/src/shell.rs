@@ -149,7 +149,7 @@ fn cover_el(path: Option<PathBuf>, size: f32, radius: f32) -> AnyElement {
     }
 }
 
-/// Crate's icon (assets/crate.svg), decoded once.
+/// crate's icon (assets/crate.svg), decoded once.
 pub(crate) fn app_icon() -> Arc<gpui::Image> {
     static ICON: std::sync::OnceLock<Arc<gpui::Image>> = std::sync::OnceLock::new();
     ICON.get_or_init(|| Arc::new(gpui::Image::from_bytes(gpui::ImageFormat::Svg, include_bytes!("../assets/crate.svg").to_vec()))).clone()
@@ -661,7 +661,7 @@ impl Shell {
                 .pt_5()
                 .pb_3()
                 .child(logo)
-                .child(div().text_lg().font_weight(FontWeight::BOLD).child("Crate"))
+                .child(div().text_lg().font_weight(FontWeight::BOLD).child("crate"))
                 .child(div().flex_1())
                 .child(back)
                 .child(fwd)

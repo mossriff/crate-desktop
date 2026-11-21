@@ -1,11 +1,11 @@
 #!/bin/bash
-# Build Crate as an AppImage: target/Crate-<version>-x86_64.AppImage
+# Build crate as an AppImage: target/crate-<version>-x86_64.AppImage
 #
 # An AppImage only runs on systems at least as new as the one it was built on (glibc), so release
 # builds are made on an older Ubuntu by .github/workflows/release.yml. Building on a rolling distro
 # works, but the result may only run on other up-to-date systems.
 #
-# Nothing else is bundled: the libraries Crate uses (X11/Wayland, ALSA, D-Bus, Vulkan) come with
+# Nothing else is bundled: the libraries crate uses (X11/Wayland, ALSA, D-Bus, Vulkan) come with
 # every desktop, and the GPU driver must be the system's own.
 set -eu
 cd "$(dirname "$0")/../.."
@@ -19,7 +19,7 @@ if [ ! -x "$TOOL" ]; then
     chmod +x "$TOOL.part" && mv "$TOOL.part" "$TOOL"
 fi
 
-APP=target/Crate.AppDir
+APP=target/crate.AppDir
 rm -rf "$APP"
 install -Dm755 target/release/crate-native "$APP/usr/bin/crate"
 install -Dm644 native/assets/crate.svg "$APP/usr/share/icons/hicolor/scalable/apps/crate-desktop.svg"
@@ -27,7 +27,7 @@ cp native/assets/crate.svg "$APP/crate-desktop.svg"
 cat > "$APP/crate-desktop.desktop" <<EOF
 [Desktop Entry]
 Type=Application
-Name=Crate
+Name=crate
 GenericName=Music Player
 Comment=Play your music library and find new music
 Exec=crate
@@ -44,7 +44,7 @@ exec "$(dirname "$(readlink -f "$0")")/usr/bin/crate" "$@"
 EOF
 chmod +x "$APP/AppRun"
 
-OUT=target/Crate-$VERSION-$ARCH.AppImage
+OUT=target/crate-$VERSION-$ARCH.AppImage
 # --appimage-extract-and-run: works without FUSE (e.g. in CI containers)
 ARCH=$ARCH "$TOOL" --appimage-extract-and-run --no-appstream "$APP" "$OUT" > target/appimagetool.log 2>&1 || { cat target/appimagetool.log; exit 1; }
 echo "$OUT ($(du -h "$OUT" | cut -f1))"

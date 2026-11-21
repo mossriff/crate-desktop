@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run crate-native inside a private, invisible KWin (virtual output) and screenshot it.
-# Nothing appears on the real desktop and the screenshot can only contain Crate.
+# Nothing appears on the real desktop and the screenshot can only contain crate.
 #
 # usage: tools/shot.sh WIDTH HEIGHT OUT.png [wait-seconds]
 # env:   QUEUE=1        open with the queue panel

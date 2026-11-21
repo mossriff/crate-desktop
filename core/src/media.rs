@@ -13,7 +13,7 @@ impl Media {
     pub fn new(tx: Sender<Msg>) -> Result<Self, String> {
         let mut controls = MediaControls::new(PlatformConfig {
             dbus_name: "crate",
-            display_name: "Crate",
+            display_name: "crate",
             hwnd: None,
         })
         .map_err(|e| format!("{e:?}"))?;

@@ -1,4 +1,4 @@
-//! Crate — native (gpui) interface. All audio, library, download and lyrics logic lives in
+//! crate — native (gpui) interface. All audio, library, download and lyrics logic lives in
 //! crate-core; this crate only draws the window.
 mod catalog;
 mod covers;
@@ -19,7 +19,7 @@ use gpui::{prelude::*, px, size, App, AssetSource, Bounds, Entity, SharedString,
 use gpui_component::{Root, Theme, ThemeMode};
 use std::borrow::Cow;
 
-// Only the icons Crate uses are compiled in (keeps the binary small).
+// Only the icons crate uses are compiled in (keeps the binary small).
 gpui_kit_assets::icon_assets!(CrateIcons, [
     Play, Pause, Shuffle, Repeat, Repeat1, SkipBack, SkipForward, ListMusic, House, Library, Search, Mic,
     Download, Plus, X, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Music, Volume1, Volume2, VolumeX,
@@ -73,7 +73,7 @@ fn main() {
                 focus: true,
                 window_min_size: Some(size(px(560.), px(420.))),
                 app_id: Some("crate-desktop".into()), // matches crate-desktop.desktop (icon, taskbar grouping)
-                titlebar: Some(gpui::TitlebarOptions { title: Some("Crate".into()), ..Default::default() }),
+                titlebar: Some(gpui::TitlebarOptions { title: Some("crate".into()), ..Default::default() }),
                 ..Default::default()
             },
             move |window, cx| {
@@ -104,7 +104,7 @@ enum Stage {
     App(Entity<shell::Shell>),
 }
 
-/// The window's content: the setup screens until Crate is connected, then the app.
+/// The window's content: the setup screens until crate is connected, then the app.
 struct Top {
     stage: Stage,
     _sub: Option<gpui::Subscription>,
@@ -126,7 +126,7 @@ impl Top {
                         cx.notify();
                     }
                     Err(e) => {
-                        eprintln!("setup finished but Crate still can't connect: {e:#}");
+                        eprintln!("setup finished but crate still can't connect: {e:#}");
                         if onboarding::demo() {
                             cx.quit(); // a demo without a library to open afterwards just ends
                         }

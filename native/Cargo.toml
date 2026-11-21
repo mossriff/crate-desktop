@@ -3,7 +3,7 @@ name = "crate-native"
 version = "0.1.0"
 edition = "2021"
 license = "GPL-3.0-or-later"
-description = "Crate with a native GPU (gpui) interface"
+description = "crate with a native GPU (gpui) interface"
 
 [[bin]]
 name = "crate-native"

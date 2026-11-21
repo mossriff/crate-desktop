@@ -762,7 +762,7 @@ fn write_tags(path: &Path, meta: &TagMeta) -> Result<()> {
     Ok(())
 }
 
-/// Make a string safe as a file/folder name (same rules as the original Crate script).
+/// Make a string safe as a file/folder name (same rules as the original crate script).
 pub fn safe(s: &str) -> String {
     let cleaned: String = s.chars().map(|c| if "/\\:*?\"<>|".contains(c) || c.is_control() { ' ' } else { c }).collect();
     let collapsed = cleaned.split_whitespace().collect::<Vec<_>>().join(" ");

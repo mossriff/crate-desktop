@@ -15,7 +15,7 @@ struct CrateConfig {
     salt: Option<String>,
 }
 
-/// Where downloaded music is filed (Crate config `library`, default ~/Music/Library).
+/// Where downloaded music is filed (crate config `library`, default ~/Music/Library).
 pub fn library_dir() -> std::path::PathBuf {
     let from_conf = dirs::config_dir()
         .and_then(|d| std::fs::read_to_string(d.join("crate/config.json")).ok())

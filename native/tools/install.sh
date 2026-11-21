@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build Crate and install it for your user: ~/.local/bin/crate, its icon, and a launcher entry.
+# Build crate and install it for your user: ~/.local/bin/crate, its icon, and a launcher entry.
 # The program is copied (not linked), so a half-finished build never replaces the app you're using.
 set -e
 cd "$(dirname "$0")/.."
@@ -13,7 +13,7 @@ mkdir -p ~/.local/share/applications
 cat > ~/.local/share/applications/crate-desktop.desktop <<EOF
 [Desktop Entry]
 Type=Application
-Name=Crate
+Name=crate
 GenericName=Music Player
 Comment=Play your music library and find new music
 Exec=$HOME/.local/bin/crate
@@ -25,4 +25,4 @@ StartupWMClass=crate-desktop
 EOF
 command -v kbuildsycoca6 > /dev/null && kbuildsycoca6 > /dev/null 2>&1 || true
 command -v update-desktop-database > /dev/null && update-desktop-database ~/.local/share/applications 2>/dev/null || true
-echo "installed ~/.local/bin/crate (find \"Crate\" in your app launcher)"
+echo "installed ~/.local/bin/crate (find \"crate\" in your app launcher)"

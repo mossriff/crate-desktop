@@ -354,7 +354,7 @@ impl Onboarding {
             .flex_col()
             .gap_3()
             .text_color(dim())
-            .child("Crate plays your own music, kept on your own computer by Navidrome, and can fetch songs you don\u{2019}t have yet from Soulseek (or YouTube, when Soulseek doesn\u{2019}t have them).")
+            .child("crate plays your own music, kept on your own computer by Navidrome, and can fetch songs you don\u{2019}t have yet from Soulseek (or YouTube, when Soulseek doesn\u{2019}t have them).")
             .child("Setting up takes a couple of minutes: a few helper programs, Navidrome, and a Soulseek account. After that you can bring your Spotify playlists over.");
         div()
             .flex()
@@ -363,7 +363,7 @@ impl Onboarding {
             .gap_6()
             .child(img(crate::shell::app_icon()).size(px(72.)))
             .child(self.page(
-                "Welcome to Crate",
+                "Welcome to crate",
                 body,
                 primary("ob-start", "Get started").on_click(cx.listener(|this, _: &ClickEvent, _, cx| this.go(Step::Tools, cx))).into_any_element(),
             ))
@@ -406,9 +406,9 @@ impl Onboarding {
             .flex()
             .flex_col()
             .child(div().text_color(dim()).mb_2().child(if missing == 0 {
-                "Everything Crate needs is installed."
+                "Everything crate needs is installed."
             } else {
-                "Crate uses these programs. Click Install next to any that are missing. Anything missing only turns off what it\u{2019}s for, so you can also carry on without them."
+                "crate uses these programs. Click Install next to any that are missing. Anything missing only turns off what it\u{2019}s for, so you can also carry on without them."
             }))
             .children(rows);
         let actions = div()
@@ -442,14 +442,14 @@ impl Onboarding {
                 }))
         };
         let explain = match mode {
-            NdMode::Install => "Crate downloads Navidrome, points it at your music folder and keeps it running in the background whenever you\u{2019}re logged in. Only this computer can reach it. Choose a username and password for it.",
-            NdMode::Existing => "Sign in to the Navidrome you already run. The music folder is where Crate saves new downloads; it should be the folder (or inside the folder) Navidrome scans.",
+            NdMode::Install => "crate downloads Navidrome, points it at your music folder and keeps it running in the background whenever you\u{2019}re logged in. Only this computer can reach it. Choose a username and password for it.",
+            NdMode::Existing => "Sign in to the Navidrome you already run. The music folder is where crate saves new downloads; it should be the folder (or inside the folder) Navidrome scans.",
         };
         let body = div()
             .flex()
             .flex_col()
             .gap_4()
-            .child(div().text_color(dim()).child("Navidrome keeps your music library and plays it to Crate (and to apps on your phone, if you like)."))
+            .child(div().text_color(dim()).child("Navidrome keeps your music library and plays it to crate (and to apps on your phone, if you like)."))
             .child(div().flex().p_1().rounded_full().bg(panel2()).self_start().child(seg("ob-nd-install", "Set it up for me", NdMode::Install, cx)).child(seg("ob-nd-existing", "I already have one", NdMode::Existing, cx)))
             .child(div().text_sm().text_color(dim()).child(explain))
             .child(field(
@@ -479,7 +479,7 @@ impl Onboarding {
             .flex()
             .flex_col()
             .gap_4()
-            .child(div().text_color(dim()).child("Soulseek is a long-running file-sharing network where people share their music collections. Crate searches it for songs you ask for."))
+            .child(div().text_color(dim()).child("Soulseek is a long-running file-sharing network where people share their music collections. crate searches it for songs you ask for."))
             .child(match &keep {
                 Some(name) => div()
                     .flex()
@@ -523,7 +523,7 @@ impl Onboarding {
             .flex_col()
             .gap_3()
             .text_color(dim())
-            .child("Coming from Spotify? Crate can rebuild your playlists: songs you already have go straight in, and the rest are downloaded into them.")
+            .child("Coming from Spotify? crate can rebuild your playlists: songs you already have go straight in, and the rest are downloaded into them.")
             .child(
                 div()
                     .flex()
@@ -535,7 +535,7 @@ impl Onboarding {
                     .text_sm()
                     .child("1.  Open exportify.net and log in with Spotify.")
                     .child("2.  Click \u{201c}Export All\u{201d}. You get a .zip with one .csv file per playlist.")
-                    .child("3.  Unzip it, then pick the .csv files in Crate."),
+                    .child("3.  Unzip it, then pick the .csv files in crate."),
             )
             .child(div().text_sm().child("You can also do this later in Settings \u{2192} Accounts."));
         let actions = div()

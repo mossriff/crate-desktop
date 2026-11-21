@@ -1,11 +1,11 @@
 #!/bin/bash
-# Click through Crate's first-run setup without it changing anything.
+# Click through crate's first-run setup without it changing anything.
 #
 # usage: native/tools/try-setup.sh            everything already installed
 #        native/tools/try-setup.sh missing    pretend some helper programs are missing
 #
 # Every action on the setup screens is pretend (nothing is downloaded, installed, signed in to or
-# saved), and Crate runs with a throwaway copy of your settings that's deleted when you close it.
+# saved), and crate runs with a throwaway copy of your settings that's deleted when you close it.
 # When you finish, it opens your real library (from that copy) so you can see where you land;
 # importing is pretend too.
 set -u

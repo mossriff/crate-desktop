@@ -29,10 +29,10 @@ jobs:
         run: native/tools/appimage.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: Crate-AppImage
-          path: target/Crate-*.AppImage
+          name: crate-AppImage
+          path: target/crate-*.AppImage
       - name: Draft release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" target/Crate-*.AppImage --draft --title "Crate ${GITHUB_REF_NAME#v}" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" target/crate-*.AppImage --draft --title "crate ${GITHUB_REF_NAME#v}" --generate-notes

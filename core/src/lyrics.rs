@@ -83,7 +83,7 @@ fn http() -> &'static reqwest::blocking::Client {
     HTTP.get_or_init(|| {
         reqwest::blocking::Client::builder()
             .timeout(Duration::from_secs(15))
-            .user_agent("Crate/0.1 (desktop music player)")
+            .user_agent("crate/0.1 (desktop music player)")
             .build()
             .expect("http client")
     })
