@@ -9,15 +9,18 @@
 #        CRATE_DEMO_EDIT=1  playlist-editing self-test on a throwaway playlist (use AFTER=12)
 #        CRATE_DEMO_PLAY=1  start playing (muted) after 3 s
 #        AFTER=s        keep the app running this long after the screenshot
+#        SRC=dir        use dir/cfg, dir/data and dir/cache instead of your real config (tools/demo-shots.sh)
 # Uses copies of the real config (player muted) in $XDG_RUNTIME_DIR/crate-test, deleted afterwards.
 set -u
 W=$1; H=$2; OUT=$(realpath -m "$3"); WAIT=${4:-6}
 BIN=$(dirname "$(realpath "$0")")/../../target/release/crate-native
 T=${XDG_RUNTIME_DIR:-/tmp}/crate-test; rm -rf "$T"; mkdir -p "$T/cfg/crate" "$T/data/crate"; chmod 700 "$T"
-cp ~/.config/crate/config.json ~/.config/crate/desktop-settings.json "$T/cfg/crate/"
-python3 - "$T" <<'PY'
+SRC=${SRC:-}
+if [ -n "$SRC" ]; then cp "$SRC"/cfg/crate/*.json "$T/cfg/crate/"; CACHE="XDG_CACHE_HOME=$SRC/cache"
+else cp ~/.config/crate/config.json ~/.config/crate/desktop-settings.json "$T/cfg/crate/"; CACHE=; fi
+python3 - "$T" "$SRC" <<'PY'
 import json, os, sys
-t = sys.argv[1]
+t, src = sys.argv[1], sys.argv[2]
 f = f"{t}/cfg/crate/desktop-settings.json"; d = json.load(open(f))
 d["panel"] = "queue" if os.environ.get("QUEUE") else os.environ.get("PANEL")
 v = os.environ.get("VIEW")
@@ -33,8 +36,8 @@ if os.environ.get("JOBS"):  # finished downloads only, so nothing re-runs in the
         json.dump([x for x in j if x.get("status") in ("done", "failed")], open(f"{t}/data/crate/desktop-jobs.json", "w"))
     except Exception: pass
 try:
-    p = json.load(open(os.path.expanduser("~/.local/share/crate/player.json")))
-    p["muted"] = True
+    p = json.load(open(f"{src}/data/crate/player.json" if src else os.path.expanduser("~/.local/share/crate/player.json")))
+    p["muted"] = not src  # the demo library is silent anyway
     p["scrobble"] = False  # never report test plays to Navidrome
     if os.environ.get("QIDX"): p["index"] = int(os.environ["QIDX"])
     json.dump(p, open(f"{t}/data/crate/player.json", "w"))
@@ -42,7 +45,7 @@ except Exception: pass
 PY
 cat > "$T/inner.sh" <<IN
 #!/bin/bash
-CRATE_DEMO_SEEK=${CRATE_DEMO_SEEK:-} CRATE_DEMO_MENU=${CRATE_DEMO_MENU:-} CRATE_DEMO_EDIT=${CRATE_DEMO_EDIT:-} CRATE_DEMO_PLAY=${CRATE_DEMO_PLAY:-} CRATE_DEMO_FIX=${CRATE_DEMO_FIX:-} CRATE_DEMO_SCROLL=${CRATE_DEMO_SCROLL:-} CRATE_BENCH=${CRATE_BENCH:-} CRATE_BENCH_STAY=${CRATE_BENCH_STAY:-} XDG_CONFIG_HOME=$T/cfg XDG_DATA_HOME=$T/data CRATE_WINDOW=${W}x$((H-40)) ${EXTRA_ENV:-} "$BIN" > $T/app.log 2>&1 &
+CRATE_DEMO_SEEK=${CRATE_DEMO_SEEK:-} CRATE_DEMO_MENU=${CRATE_DEMO_MENU:-} CRATE_DEMO_EDIT=${CRATE_DEMO_EDIT:-} CRATE_DEMO_PLAY=${CRATE_DEMO_PLAY:-} CRATE_DEMO_FIX=${CRATE_DEMO_FIX:-} CRATE_DEMO_SCROLL=${CRATE_DEMO_SCROLL:-} CRATE_BENCH=${CRATE_BENCH:-} CRATE_BENCH_STAY=${CRATE_BENCH_STAY:-} $CACHE XDG_CONFIG_HOME=$T/cfg XDG_DATA_HOME=$T/data CRATE_WINDOW=${W}x$((H-40)) ${EXTRA_ENV:-} "$BIN" > $T/app.log 2>&1 &
 sleep $WAIT
 spectacle -b -n -f -o "$OUT" > $T/spec.log 2>&1
 sleep ${AFTER:-1}; kill %1 2>/dev/null

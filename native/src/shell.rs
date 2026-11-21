@@ -479,7 +479,7 @@ impl Shell {
     fn move_songs(&mut self, moved: Vec<usize>, target: usize, cx: &mut Context<Self>) {
         let Some(pid) = self.editable_pid(cx) else { return };
         if self.model.read(cx).sort_for(&pid).key.is_some() {
-            return self.model.update(cx, |m, cx| m.toast("Sorted by a column \u{2014} click it until the arrow goes away to reorder", false, cx));
+            return self.model.update(cx, |m, cx| m.toast("Sorted by a column. Click it until the arrow goes away, then drag to reorder.", false, cx));
         }
         let anchor = self.selected.and_then(|a| moved.iter().position(|&k| k == a));
         if let Some(new) = self.model.update(cx, |m, cx| m.move_in_playlist(pid, &moved, target, cx)) {
@@ -926,6 +926,8 @@ impl Shell {
             DragItem::shared(Rc::new(Payload::Lib(tracks)), reorder.clone().map(|p| (p, Rc::new(sel))))
         });
         let shell = cx.entity();
+        // the list reaches the page edge (so its scrollbar does); rows keep the page margin on the right
+        let row_pr = f32::max(pad - 8., GUTTER);
         let list = uniform_list("songs", rows.len() + lead, move |range, _window, _cx| {
             range
                 .map(|i| {
@@ -944,7 +946,7 @@ impl Shell {
                     };
                     let t_menu = t.clone();
                     // the row stops short of the scrollbar's lane on the right
-                    div().w_full().h(px(row)).pr(px(GUTTER)).child(div()
+                    div().w_full().h(px(row)).pr(px(row_pr)).child(div()
                         .id(i)
                         .group("row")
                         .w_full()
@@ -1244,7 +1246,6 @@ impl Shell {
                     .flex_1()
                     .min_h_0()
                     .pl(px(pad - 8.))
-                    .pr(px((pad - 8. - GUTTER).max(0.)))
                     .flex()
                     .flex_col()
                     .on_drag_move::<DragItem>(cx.listener(|this, ev: &gpui::DragMoveEvent<DragItem>, _, cx| {

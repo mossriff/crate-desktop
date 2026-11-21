@@ -6,6 +6,10 @@
 It plays from <a href="https://www.navidrome.org/">Navidrome</a>, lets you search for songs you don't have,
   and feels like the streaming apps you're used to.</p>
 
+<p align="center"><img src="docs/screenshots/home.png" alt="Crate's home page"></p>
+
+<p align="center"><sub>The library in these pictures is made up: real album details and covers, silent songs.</sub></p>
+
 ---
 
 ## What this is (and isn't)
@@ -27,7 +31,7 @@ did make sure it runs efficiently, as I know many "vibe coded" apps can be in th
 performance and stability: it idles at well under 1% CPU and plays music in about
 50 MB of memory. Which is better than Spotify's app by a big margin.
 
-I'm largely against the use of AI use in most subjects. This was a small thing I wanted for my own
+I'm largely against the use of AI in most subjects. This was a small thing I wanted for my own
 convenience, and that's the context it was made in.
 
 What does that mean for you:
@@ -41,7 +45,12 @@ What does that mean for you:
 
 - **Your library, modern.** Playlists, albums and artists, search, a queue, shuffle and
   repeat, gapless playback and media keys all similar in style to Spotify's layout.
-- **Discord Rich Presence.** Full Discord RPC displaying current album art, the name, artist, and album name.
+- **Discord status.** With [mprisence](https://github.com/lazykern/mprisence) running, Discord shows
+  what you're playing: album art, song, artist and album. It also works with media keys and your
+  desktop's "now playing" widget.
+
+<p align="center"><img src="docs/screenshots/playlist.png" width="85%" alt="A playlist, with the queue open"></p>
+
 - **Find what you don't have.** Search the catalog sourced from Deezer and click a song to get it. Crate
   downloads it from Soulseek (or YouTube if Soulseek doesn't have it), tags it with proper
   artist, album, cover and track details, files it into your library, and adds it to the
@@ -49,6 +58,9 @@ What does that mean for you:
 - **Import from Spotify.** Export your playlists with [Exportify](https://exportify.net) and give
   Crate the CSV files. Songs you already have go straight in, the rest are downloaded into the
   playlist.
+
+<p align="center"><img src="docs/screenshots/search.png" width="85%" alt="Search: songs in your library first, then songs you can get"></p>
+
 - **Fix library.** Finds songs you have twice by how they *sound* (audio fingerprints), merges
   albums split across two spellings, and fills in missing covers and details. It shows you
   everything first, moves duplicates to a review folder instead of deleting them, and can be
@@ -56,11 +68,15 @@ What does that mean for you:
 - **Synced lyrics**, with romaji under Japanese lyrics if you want it.
 - **Volume normalization** while playing. Your files are never changed for this.
 - **Playlist editing**: drag to reorder, multi-select, rename, and undo.
+
+<p align="center"><img src="docs/screenshots/album.png" width="85%" alt="An album page"></p>
+
 - **Themes** (dark, OLED black, dim, light), accent colours (including one taken from the album
   art), text size, row density, and optional animations.
-- **No damn electron.** Written in everyone's favorite, Rust, with a GPU-drawn interface (gpui), with no web
-  browser
-  inside.
+- **No damn Electron.** Written in everyone's favorite, Rust, with a GPU-drawn interface (gpui), with no web
+  browser inside.
+
+<p align="center"><img src="docs/screenshots/light.png" width="85%" alt="The light theme"></p>
 
 ## Requirements
 
@@ -75,7 +91,19 @@ What does that mean for you:
 
 ## Install
 
-You need a Rust toolchain ([rustup.rs](https://rustup.rs)).
+**The easy way:** download the AppImage from
+[Releases](https://github.com/mossriff/crate-desktop/releases), make it executable, and run it:
+
+```sh
+chmod +x Crate-*.AppImage
+./Crate-*.AppImage
+```
+
+To get it in your app launcher, use [Gear Lever](https://flathub.org/apps/it.mijorus.gearlever) or
+[AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher). Crate doesn't update itself;
+download a new AppImage when you want a newer version.
+
+**From source:** you need a Rust toolchain ([rustup.rs](https://rustup.rs)).
 
 ```sh
 git clone https://github.com/mossriff/crate-desktop
@@ -147,7 +175,9 @@ Crate is a Cargo workspace:
 
 `native/tools/shot.sh` runs Crate inside an invisible, private KWin session and screenshots it,
 so you can check the UI without a window opening on your desktop. `native/tools/measure.sh`
-reports its CPU and memory use the same way.
+reports its CPU and memory use the same way. `native/tools/demo-shots.sh` makes the screenshots
+from a made-up library, and `native/tools/appimage.sh` builds the AppImage (releases are
+built by GitHub Actions on an older Ubuntu, so they run on more systems).
 
 ## License
 

@@ -232,7 +232,7 @@ impl Model {
                 .await;
             let _ = this.update(cx, |m, cx| {
                 m.fix = match r {
-                    Ok(p) if p.is_empty() && p.mismatched.is_empty() => Fix::Done("Everything looks tidy: no duplicates or missing details found.".into()),
+                    Ok(p) if p.is_empty() && p.mismatched.is_empty() => Fix::Done("No duplicates or missing details found.".into()),
                     Ok(p) => Fix::Ready(p),
                     Err(e) => Fix::Failed(format!("{e:#}")),
                 };

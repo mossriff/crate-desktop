@@ -145,7 +145,7 @@ impl Shell {
                                     .justify_center()
                                     .cursor_pointer()
                                     .when(!pv, |d| d.invisible().group_hover("dzrow", |s| s.visible()))
-                                    .tooltip(tip(if has { "Play" } else if pv { "Stop preview" } else { "Preview (30 s) \u{2014} not in your library yet" }))
+                                    .tooltip(tip(if has { "Play" } else if pv { "Stop preview" } else { "30-second preview. This song isn\u{2019}t in your library yet." }))
                                     .child(if has {
                                         icon(IconName::Play, 16., text())
                                     } else {
