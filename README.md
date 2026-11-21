@@ -2,49 +2,51 @@
 
 <h1 align="center">Crate</h1>
 
-<p align="center">A desktop music player for your own music library on Linux.<br>
-It plays from <a href="https://www.navidrome.org/">Navidrome</a>, finds songs you don't have yet, and feels like the streaming apps you're used to.</p>
+<p align="center">A desktop music player for your own music library on Linux. (For now)<br>
+It plays from <a href="https://www.navidrome.org/">Navidrome</a>, lets you search for songs you don't have,
+  and feels like the streaming apps you're used to.</p>
 
 ---
 
 ## What this is (and isn't)
 
-Crate is a **personal project**. I made it for myself because self-hosting music meant juggling
-a server, a downloader, a tagger and a player, and none of them talked to each other. Crate
-puts them in one window.
+Crate is a **personal project**. I made it for myself because self-hosting music meant having to manage ten
+different pieces of software and all of it being incredibly inconvenient. Crate puts the important parts in
+one window, searching, downloading, playlists, organizing, playing music, all done in Crate.
 
 I'm sharing it because I have no reason not to. **There are no promises:** no support, no
-roadmap, no guarantee it works on your setup. If it breaks, you get to keep both pieces. Issues
-and fixes are welcome, but I may be slow to respond.
+roadmap, no guarantee it works on your setup. If it breaks, well you've been warned beforehand. Issues
+and fixes are welcome, but I may be slow to respond. Though speaking from experience, I have no issues
+whatsoever with it on my system. (Arch + KDE)
 
 ### About AI
 
-I'll be upfront: **most of Crate's code was written with an AI assistant** (Anthropic's Claude).
-I described what I wanted, tested it, and pushed back until it worked the way I wanted. I
+I'll be upfront: **most of Crate's code was written with an AI assistant** (Claude).
+I described what I wanted, used it, and pushed back until it worked the way I wanted. I
 did make sure it runs efficiently: it idles at well under 1% CPU and plays music in about
-50 MB of memory.
+50 MB of memory. Which is better than Spotify's app by a big margin.
 
-I'm largely against AI use in most subjects. This was a small thing I wanted for my own
+I'm largely against the use of AI use in most subjects. This was a small thing I wanted for my own
 convenience, and that's the context it was made in.
 
-What matters for you as a user:
+What does that mean for you:
 
-- **There is no AI in the app.** Crate doesn't generate, recommend, "enhance" or analyse
+- **There is no AI in the app.** Crate doesn't generate, recommend, "enhance" or analyze
   anything with AI, and it never sends your music or listening anywhere for that.
 - **Nothing in it is made up.** Your songs, covers, lyrics and catalog data all come from
   services and people listed below. Crate just puts them together.
 
 ## Features
 
-- **Your library, Spotify-style.** Playlists, albums and artists, search, a queue, shuffle and
-  repeat, gapless playback and media keys. It also shows up in your desktop's "now playing"
-  widget (MPRIS).
-- **Find what you don't have.** Search the Deezer catalog and click a song to get it. Crate
+- **Your library, modern.** Playlists, albums and artists, search, a queue, shuffle and
+  repeat, gapless playback and media keys all similar in style to Spotify's layout.
+- **Discord Rich Presence.** Full Discord RPC displaying current album art, the name, artist, and album name.
+- **Find what you don't have.** Search the catalog sourced from Deezer and click a song to get it. Crate
   downloads it from Soulseek (or YouTube if Soulseek doesn't have it), tags it with proper
   artist, album, cover and track details, files it into your library, and adds it to the
   playlist you picked.
 - **Import from Spotify.** Export your playlists with [Exportify](https://exportify.net) and give
-  Crate the CSV files. Songs you already have go straight in; the rest are downloaded into the
+  Crate the CSV files. Songs you already have go straight in, the rest are downloaded into the
   playlist.
 - **Fix library.** Finds songs you have twice by how they *sound* (audio fingerprints), merges
   albums split across two spellings, and fills in missing covers and details. It shows you
@@ -55,7 +57,8 @@ What matters for you as a user:
 - **Playlist editing**: drag to reorder, multi-select, rename, and undo.
 - **Themes** (dark, OLED black, dim, light), accent colours (including one taken from the album
   art), text size, row density, and optional animations.
-- **Native and light.** Written in Rust with a GPU-drawn interface (gpui), with no web browser
+- **No damn electron.** Written in everyone's favorite, Rust, with a GPU-drawn interface (gpui), with no web
+  browser
   inside.
 
 ## Requirements
@@ -107,7 +110,8 @@ Both sign-in files are readable only by you.
 
 ## Who actually does the work
 
-Crate is glue. Everything below belongs to other people:
+Crate is glue. Everything below belongs to other people, please give them your love as they are the
+ones who even allowed this to be possible:
 
 - [Navidrome](https://www.navidrome.org/) stores and serves your library.
 - [Soulseek](https://www.slsknet.org/), and the people sharing their collections on it, are where
