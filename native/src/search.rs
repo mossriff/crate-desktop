@@ -116,15 +116,15 @@ impl Shell {
                         div()
                             .relative()
                             .w(px(if numbered { 36. } else { 40. }))
-                            .h_full()
+                            .h(px(40.))
                             .flex_none()
                             .flex()
                             .items_center()
                             .justify_center()
                             .child(
+                                // a number makes way for the button; a cover stays, darkened underneath it
                                 div()
-                                    .group_hover("dzrow", |s| s.invisible())
-                                    .when(pv, |d| d.invisible())
+                                    .when(numbered, |d| d.group_hover("dzrow", |s| s.invisible()).when(pv, |d| d.invisible()))
                                     .text_color(if is_cur { accent() } else { faint() })
                                     .child(if numbered {
                                         format!("{}", i + 1).into_any_element()
