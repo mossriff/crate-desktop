@@ -67,7 +67,7 @@ What does that mean for you:
   undone.
 - **Synced lyrics**, with romaji under Japanese lyrics if you want it.
 - **Volume normalization** while playing. Your files are never changed for this.
-- **Playlist editing**: drag to reorder, multi-select, rename, and undo.
+- **Playlist editing**: drag to reorder, multi-select, rename, your own cover picture, and undo.
 
 <p align="center"><img src="docs/screenshots/album.png" width="85%" alt="An album page"></p>
 

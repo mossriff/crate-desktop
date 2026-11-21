@@ -1519,6 +1519,11 @@ impl Render for Shell {
             }
             self.home_scroll.set_offset(gpui::point(px(0.), px(0.)));
         }
+        if self.prompt.is_none() {
+            if let Some((pid, image)) = self.model.update(cx, |m, _| m.cover_wants_password.take()) {
+                self.open_prompt(overlay::PromptKind::CoverPassword(pid, image), window, cx);
+            }
+        }
         if !matches!(route, Route::Setup(_)) {
             // a setup step left halfway starts fresh next time
             self.setup = None;

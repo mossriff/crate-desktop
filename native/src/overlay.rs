@@ -33,6 +33,8 @@ pub(super) enum PromptKind {
     Rename(String),
     Describe(String),
     Delete(String),
+    /// Navidrome's password, to change this playlist's cover to this picture (None = automatic)
+    CoverPassword(String, Option<std::path::PathBuf>),
 }
 
 pub(super) struct Prompt {
@@ -151,7 +153,35 @@ impl Shell {
         self.open_prompt(PromptKind::NewPlaylist(then), window, cx);
     }
 
-    pub(super) fn open_prompt(&mut self, kind: PromptKind, window: &mut Window, cx: &mut Context<Self>) {
+    /// Pick a picture for a playlist's cover.
+    pub(super) fn pick_cover(&mut self, pid: String, cx: &mut Context<Self>) {
+        let rx = cx.prompt_for_paths(gpui::PathPromptOptions { files: true, directories: false, multiple: false, prompt: Some("Use as cover".into()) });
+        let model = self.model.clone();
+        cx.spawn(async move |_, cx| {
+            if let Ok(Ok(Some(paths))) = rx.await {
+                let Some(p) = paths.into_iter().next() else { return };
+                let ok = p.extension().and_then(|e| e.to_str()).is_some_and(|e| ["jpg", "jpeg", "png", "webp", "gif"].contains(&e.to_ascii_lowercase().as_str()));
+                let _ = model.update(cx, |m, cx| {
+                    if ok {
+                        m.set_playlist_cover(pid, Some(p), None, cx)
+                    } else {
+                        m.toast("Pick a picture (JPG, PNG or WebP)", true, cx)
+                    }
+                });
+            }
+        })
+        .detach();
+    }
+
+    /// test hook: type into the open prompt and press its button
+    pub(crate) fn demo_type_prompt(&mut self, text: &str, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(i) = self.prompt.as_ref().and_then(|p| p.input.clone()) {
+            i.update(cx, |i, cx| i.set_value(text.to_string(), window, cx));
+            self.submit_prompt(window, cx);
+        }
+    }
+
+        pub(super) fn open_prompt(&mut self, kind: PromptKind, window: &mut Window, cx: &mut Context<Self>) {
         self.menu = None;
         let (placeholder, initial) = {
             let m = self.model.read(cx);
@@ -160,6 +190,7 @@ impl Shell {
                 PromptKind::Rename(pid) => (Some("Playlist name"), m.playlist_name_of(pid)),
                 PromptKind::Describe(pid) => (Some("Add an optional description"), m.cache.get(pid).and_then(|p| p.comment.clone()).unwrap_or_default()),
                 PromptKind::Delete(_) => (None, String::new()),
+                PromptKind::CoverPassword(..) => (Some("Navidrome password"), String::new()),
             }
         };
         let (input, sub) = match placeholder {
@@ -169,7 +200,8 @@ impl Shell {
                 (None, None)
             }
             Some(ph) => {
-                let input = cx.new(|cx| InputState::new(window, cx).placeholder(ph));
+                let masked = matches!(kind, PromptKind::CoverPassword(..));
+                let input = cx.new(|cx| InputState::new(window, cx).placeholder(ph).masked(masked));
                 input.update(cx, |i, cx| {
                     i.set_value(initial, window, cx);
                     i.focus(window, cx);
@@ -201,17 +233,23 @@ impl Shell {
             PromptKind::Rename(pid) if !value.is_empty() => m.rename_playlist(pid, value, cx),
             PromptKind::Describe(pid) => m.set_playlist_comment(pid, value, cx),
             PromptKind::Delete(pid) => m.delete_playlist(pid, cx),
+            PromptKind::CoverPassword(pid, image) if !value.is_empty() => m.set_playlist_cover(pid, image, Some(value), cx),
             _ => {}
         });
         cx.notify();
     }
 
-    /// Rename / describe / delete entries for a playlist.
+    /// Rename / describe / cover / delete entries for a playlist.
     pub(super) fn playlist_items(pid: &str) -> Vec<MenuItem> {
-        let (a, b, c) = (pid.to_string(), pid.to_string(), pid.to_string());
+        let (a, b, c, d, e) = (pid.to_string(), pid.to_string(), pid.to_string(), pid.to_string(), pid.to_string());
         vec![
             item(IconName::Pencil, "Rename…", move |s, w, cx| s.open_prompt(PromptKind::Rename(a.clone()), w, cx)),
             item(IconName::Pencil, "Edit description…", move |s, w, cx| s.open_prompt(PromptKind::Describe(b.clone()), w, cx)),
+            item(IconName::ImagePlus, "Change cover…", move |s, _, cx| s.pick_cover(d.clone(), cx)),
+            item(IconName::ImageMinus, "Use the automatic cover", move |s, _, cx| {
+                let pid = e.clone();
+                s.model.update(cx, |m, cx| m.set_playlist_cover(pid, None, None, cx))
+            }),
             MenuItem::Sep,
             item(IconName::Trash, "Delete playlist…", move |s, w, cx| s.open_prompt(PromptKind::Delete(c.clone()), w, cx)),
         ]
@@ -297,8 +335,16 @@ impl Shell {
                 PromptKind::Rename(_) => ("Rename playlist".into(), "Save", false),
                 PromptKind::Describe(_) => ("Playlist description".into(), "Save", false),
                 PromptKind::Delete(pid) => (format!("Delete \u{201c}{}\u{201d}?", self.model.read(cx).playlist_name_of(pid)).into(), "Delete", true),
+                PromptKind::CoverPassword(..) => ("Change playlist cover".into(), "Continue", false),
             };
             let body: AnyElement = match &p.input {
+                Some(i) if matches!(p.kind, PromptKind::CoverPassword(..)) => div()
+                    .flex()
+                    .flex_col()
+                    .gap_3()
+                    .child(div().text_sm().text_color(dim()).child("Navidrome needs your password to change covers. crate only uses it to sign in this once and never saves it."))
+                    .child(Input::new(i).mask_toggle())
+                    .into_any_element(),
                 Some(i) => Input::new(i).into_any_element(),
                 None => div()
                     .text_sm()

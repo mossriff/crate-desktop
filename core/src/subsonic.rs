@@ -53,6 +53,38 @@ impl Client {
         Ok(Client { base: c.navidrome_url.trim_end_matches('/').to_string(), auth, http })
     }
 
+    /// Navidrome's own API (not Subsonic) for things Subsonic can't do, like playlist covers. It
+    /// signs in with the password itself, so the session it returns is only kept in memory.
+    pub fn navidrome_session(&self, password: &str) -> Result<String> {
+        let user = self.auth.iter().find(|(k, _)| k == "u").map(|(_, v)| v.clone()).unwrap_or_default();
+        let r = self.http.post(format!("{}/auth/login", self.base)).json(&serde_json::json!({ "username": user, "password": password })).send()?;
+        if r.status() == reqwest::StatusCode::UNAUTHORIZED {
+            bail!("Wrong password");
+        }
+        let v: Value = r.error_for_status()?.json()?;
+        v["token"].as_str().map(str::to_string).context("Navidrome didn't start a session")
+    }
+
+    /// Use a picture as a playlist's cover (newer Navidromes only), or with `image` None,
+    /// go back to the automatic one made from its songs.
+    pub fn set_playlist_image(&self, session: &str, id: &str, image: Option<&std::path::Path>) -> Result<()> {
+        let url = format!("{}/api/playlist/{id}/image", self.base);
+        let req = match image {
+            Some(path) => self.http.post(url).multipart(reqwest::blocking::multipart::Form::new().file("image", path)?),
+            None => self.http.delete(url),
+        };
+        let r = req.header("x-nd-authorization", format!("Bearer {session}")).send()?;
+        match r.status().as_u16() {
+            200..=299 => Ok(()),
+            401 => Err(anyhow!(SessionExpired)),
+            404 | 405 => bail!("This Navidrome can't store playlist covers. Updating Navidrome adds it."),
+            _ => {
+                let msg = r.text().unwrap_or_default();
+                bail!("Navidrome refused the picture: {}", msg.trim().trim_matches('"').chars().take(120).collect::<String>())
+            }
+        }
+    }
+
     fn url(&self, method: &str) -> String {
         format!("{}/rest/{}", self.base, method)
     }
@@ -324,3 +356,13 @@ impl Client {
             .unwrap_or_default()
     }
 }
+
+/// The Navidrome session ran out (they last a couple of days); sign in again.
+#[derive(Debug)]
+pub struct SessionExpired;
+impl std::fmt::Display for SessionExpired {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.write_str("the Navidrome session ran out")
+    }
+}
+impl std::error::Error for SessionExpired {}

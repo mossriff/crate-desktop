@@ -195,6 +195,10 @@ pub struct Model {
     pub dz_albums: HashMap<u64, Arc<(DzAlbum, Vec<DzTrack>)>>,
     pub dz_artists: HashMap<u64, Arc<(DzArtist, Vec<DzTrack>, Vec<DzAlbum>)>>,
     pub toast: Option<Toast>,
+    /// Navidrome's own-API session (for playlist covers); in memory only, it was made from the password
+    pub nd_session: Option<String>,
+    /// a cover change that needs the password first: playlist, picture (None = automatic cover)
+    pub cover_wants_password: Option<(String, Option<std::path::PathBuf>)>,
     /// Lyrics of the current song (fetched as soon as a song starts, so the view opens instantly).
     pub lyrics: Option<(String, LyricsState)>,
     pub lyr_mode: LyrMode,
@@ -392,6 +396,8 @@ impl Model {
             dz_albums: HashMap::new(),
             dz_artists: HashMap::new(),
             toast: None,
+            nd_session: None,
+            cover_wants_password: None,
             lyrics: None,
             lyr_mode,
             preview,

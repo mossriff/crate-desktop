@@ -220,6 +220,25 @@ fn start_app(client: Client, window: &mut gpui::Window, cx: &mut App) -> Entity<
             })
             .detach();
     }
+    if let Ok(img) = std::env::var("CRATE_DEMO_COVER") {
+        // test hook: after 2 s, give the open playlist this cover (asks for the password); after
+        // 6 s, type the password set in CRATE_DEMO_COVER_PW into the prompt and continue
+        let (m, sh) = (model.clone(), shell.clone());
+        window
+            .spawn(cx, async move |cx| {
+                cx.background_executor().timer(std::time::Duration::from_secs(2)).await;
+                let _ = cx.update(|_, cx| m.update(cx, |m, cx| {
+                    if let model::Route::Playlist(pid) = m.route.clone() {
+                        m.set_playlist_cover(pid, Some(img.into()), None, cx)
+                    }
+                }));
+                cx.background_executor().timer(std::time::Duration::from_secs(4)).await;
+                if let Ok(pw) = std::env::var("CRATE_DEMO_COVER_PW") {
+                    let _ = cx.update(|w, cx| sh.update(cx, |s, cx| s.demo_type_prompt(&pw, w, cx)));
+                }
+            })
+            .detach();
+    }
     if std::env::var("CRATE_DEMO_EDIT").is_ok() {
         shell::demo_edit(shell.clone(), window, cx);
     }

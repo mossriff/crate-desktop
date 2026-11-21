@@ -1,7 +1,7 @@
 //! Album covers: fetched from Navidrome by background threads into a disk cache
 //! (~/.cache/crate/covers/<id>_<size>.jpg) and drawn from there.
 use crate_core::subsonic::Client;
-use std::collections::{HashSet, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
@@ -33,6 +33,9 @@ pub struct Covers {
     wake: Arc<Condvar>,
     /// Set when new covers arrived, so the UI knows to redraw.
     pub dirty: Arc<AtomicBool>,
+    /// covers replaced this session (a playlist's new picture keeps its id): drawn from a new
+    /// file name, since images are also cached in memory by path
+    versions: Arc<Mutex<HashMap<String, u32>>>,
 }
 
 fn key(id: &str, size: u32) -> String {
@@ -59,6 +62,7 @@ impl Covers {
             queue: Default::default(),
             wake: Default::default(),
             dirty: Arc::new(AtomicBool::new(false)),
+            versions: Default::default(),
         };
         for _ in 0..4 {
             let (c2, client) = (c.clone(), client.clone());
@@ -76,7 +80,7 @@ impl Covers {
                         }
                     };
                     let (fetched, k) = match &req {
-                        Req::Nav(id, size) => (client.cover(id, *size), key(id, *size)),
+                        Req::Nav(id, size) => (client.cover(id, *size), c2.key(id, *size)),
                         Req::Url(u) => (crate_core::http_get(u), url_key(u)),
                     };
                     if let Ok(bytes) = fetched {
@@ -99,7 +103,7 @@ impl Covers {
         let mut queued = self.queued.lock().unwrap();
         let mut q = self.queue.lock().unwrap();
         for id in ids {
-            let k = key(id, size);
+            let k = self.key(id, size);
             if !ready.contains(&k) && queued.insert(k) {
                 q.push_front(Req::Nav(id.to_string(), size));
             }
@@ -107,10 +111,32 @@ impl Covers {
         self.wake.notify_all();
     }
 
+    fn key(&self, id: &str, size: u32) -> String {
+        match self.versions.lock().unwrap().get(id) {
+            Some(v) => format!("{}_v{v}", key(id, size)),
+            None => key(id, size),
+        }
+    }
+
+    /// Forget a cover that changed on the server, so it's fetched again.
+    pub fn refresh(&self, id: &str) {
+        let prefix = key(id, 0).trim_end_matches('0').to_string(); // "<id>_"
+        let mut ready = self.ready.lock().unwrap();
+        let mut queued = self.queued.lock().unwrap();
+        let ours = |k: &str| k.strip_prefix(&prefix).is_some_and(|rest| rest.starts_with(|c: char| c.is_ascii_digit()));
+        for k in ready.iter().filter(|k| ours(k)) {
+            let _ = std::fs::remove_file(self.dir.join(format!("{k}.jpg")));
+        }
+        ready.retain(|k| !ours(k));
+        queued.retain(|k| !ours(k));
+        *self.versions.lock().unwrap().entry(id.to_string()).or_insert(0) += 1;
+        self.dirty.store(true, Ordering::Relaxed);
+    }
+
     /// Path to the cached cover, or None (and a fetch is scheduled).
     pub fn get(&self, id: Option<&str>, size: u32) -> Option<PathBuf> {
         let id = id?;
-        let k = key(id, size);
+        let k = self.key(id, size);
         if self.ready.lock().unwrap().contains(&k) {
             return Some(self.dir.join(format!("{k}.jpg")));
         }

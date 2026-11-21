@@ -154,6 +154,54 @@ impl Model {
         .detach();
     }
 
+    /// Give a playlist its own picture, or with `image` None, go back to the one made from its
+    /// songs. Needs a Navidrome session; without one (or when it ran out) the password is asked
+    /// for first (`cover_wants_password`), then this runs again with it.
+    pub fn set_playlist_cover(&mut self, pid: String, image: Option<std::path::PathBuf>, password: Option<String>, cx: &mut Context<Self>) {
+        let session = self.nd_session.clone();
+        if session.is_none() && password.is_none() {
+            self.cover_wants_password = Some((pid, image));
+            return cx.notify();
+        }
+        let c = self.client.clone();
+        cx.spawn(async move |this, cx| {
+            let (p2, img) = (pid.clone(), image.clone());
+            let r = cx
+                .background_executor()
+                .spawn(async move {
+                    let s = match (password, session) {
+                        (Some(pw), _) => c.navidrome_session(&pw)?,
+                        (None, Some(s)) => s,
+                        (None, None) => unreachable!(),
+                    };
+                    c.set_playlist_image(&s, &p2, img.as_deref())?;
+                    anyhow::Ok(s)
+                })
+                .await;
+            let _ = this.update(cx, |m, cx| match r {
+                Ok(s) => {
+                    m.nd_session = Some(s);
+                    let cover = m.playlists.iter().find(|p| p.id == pid).and_then(|p| p.cover_art.clone());
+                    for id in cover.iter().chain(std::iter::once(&pid)) {
+                        m.covers.refresh(id);
+                    }
+                    m.toast(if image.is_some() { "Cover changed" } else { "Back to the automatic cover" }, false, cx);
+                }
+                Err(e) if e.is::<crate_core::subsonic::SessionExpired>() || e.to_string() == "Wrong password" => {
+                    let wrong = e.to_string() == "Wrong password";
+                    m.nd_session = None;
+                    m.cover_wants_password = Some((pid, image));
+                    if wrong {
+                        m.toast("Wrong password", true, cx);
+                    }
+                    cx.notify();
+                }
+                Err(e) => m.toast(format!("Couldn\u{2019}t change the cover: {e:#}"), true, cx),
+            });
+        })
+        .detach();
+    }
+
     pub fn delete_playlist(&mut self, pid: String, cx: &mut Context<Self>) {
         let name = self.playlist_name_of(&pid);
         let cached = self.cache.get(&pid).cloned();
