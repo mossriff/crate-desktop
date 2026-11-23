@@ -2,7 +2,7 @@
 //!
 //! Runs on its own audio thread with its own output, separate from the main player, so a
 //! preview never disturbs the queue. The UI pauses the main player itself before previewing.
-use rodio::{Decoder, OutputStream, Sink};
+use rodio::{OutputStream, Sink};
 use std::io::Cursor;
 use std::sync::mpsc::{channel, RecvTimeoutError, Sender};
 use std::time::Duration;
@@ -70,7 +70,7 @@ impl Preview {
                             let handle = &out.as_ref().unwrap().1;
                             let sink = Sink::try_new(handle)?;
                             sink.set_volume(volume);
-                            sink.append(Decoder::new(Cursor::new(strip_id3(bytes?)))?);
+                            sink.append(crate::decoder(Cursor::new(strip_id3(bytes?))).map_err(anyhow::Error::msg)?);
                             Ok(sink)
                         })();
                         match started {

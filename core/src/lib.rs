@@ -34,3 +34,13 @@ pub fn http_get(url: &str) -> anyhow::Result<Vec<u8>> {
     });
     Ok(c.get(url).send()?.error_for_status()?.bytes()?.to_vec())
 }
+
+/// Open audio for playing. rodio's decoder crashes on some files (Apple Lossless in .m4a, for
+/// one) instead of saying it can't read them; this turns that into an error, so the caller can
+/// convert the file or skip it.
+pub fn decoder<R: std::io::Read + std::io::Seek + Send + Sync + 'static>(r: R) -> Result<rodio::Decoder<R>, String> {
+    match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| rodio::Decoder::new(r))) {
+        Ok(d) => d.map_err(|e| e.to_string()),
+        Err(_) => Err("unsupported audio format".into()),
+    }
+}

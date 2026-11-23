@@ -4,7 +4,7 @@ use crate::media::Media;
 use crate::model::Track;
 use crate::subsonic::Client;
 use rand::seq::SliceRandom;
-use rodio::{Decoder, OutputStream, Sink, Source};
+use rodio::{OutputStream, Sink, Source};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -138,7 +138,7 @@ fn gain_for(t: &Track, normalize: bool) -> f32 {
 /// Open a cached song file as a source with an adjustable gain.
 fn open_source(path: &std::path::Path, gain: &Gain) -> Result<impl Source<Item = f32> + Send + 'static, String> {
     let f = std::fs::File::open(path).map_err(|e| e.to_string())?;
-    let dec = Decoder::new(std::io::BufReader::with_capacity(64 * 1024, f)).map_err(|e| e.to_string())?;
+    let dec = crate::decoder(std::io::BufReader::with_capacity(64 * 1024, f))?;
     let g = gain.clone();
     let mut cur = g.get();
     Ok(dec.convert_samples::<f32>().amplify(cur).periodic_access(Duration::from_millis(50), move |s| {

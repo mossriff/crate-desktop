@@ -39,7 +39,7 @@ pub fn cached(id: &str) -> Option<PathBuf> {
 fn decodable(path: &Path) -> bool {
     std::fs::File::open(path)
         .ok()
-        .map(|f| rodio::Decoder::new(std::io::BufReader::new(f)).is_ok())
+        .map(|f| crate::decoder(std::io::BufReader::new(f)).is_ok())
         .unwrap_or(false)
 }
 
@@ -117,4 +117,26 @@ pub fn size() -> u64 {
 
 pub fn clear() {
     let _ = std::fs::remove_dir_all(dir());
+}
+
+#[cfg(test)]
+mod tests {
+    /// Apple Lossless in .m4a used to crash rodio's decoder (and with it, loading the song)
+    /// instead of being sent to ffmpeg.
+    #[test]
+    fn alac_is_not_decodable_and_does_not_crash() {
+        let dir = std::env::temp_dir().join(format!("crate-alac-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let f = dir.join("t.m4a");
+        let made = std::process::Command::new("ffmpeg")
+            .args(["-v", "error", "-y", "-f", "lavfi", "-i", "sine=d=1", "-c:a", "alac"])
+            .arg(&f)
+            .status()
+            .map(|s| s.success())
+            .unwrap_or(false);
+        if made {
+            assert!(!super::decodable(&f));
+        }
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

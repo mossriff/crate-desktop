@@ -24,7 +24,7 @@ gpui_kit_assets::icon_assets!(CrateIcons, [
     Play, Pause, Shuffle, Repeat, Repeat1, SkipBack, SkipForward, ListMusic, House, Library, Search, Mic,
     Download, Plus, X, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, Music, Volume1, Volume2, VolumeX,
     LoaderCircle, Check, ListPlus, ListEnd, ListStart, RotateCw, CircleCheck, CircleAlert, Headphones,
-    Ellipsis, Pencil, Trash, Undo2, ListMinus, Settings, Clock
+    Ellipsis, Pencil, Trash, Undo2, ListMinus, Settings, Clock, ImagePlus, ImageMinus
 ]);
 
 /// Our icons first, then gpui-component's own defaults (input clear buttons etc.).
@@ -49,7 +49,7 @@ fn main() {
     unsafe {
         libc::mallopt(libc::M_ARENA_MAX, 2);
     }
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warn,lofty=error")).init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("warn,lofty=error,symphonia_bundle_mp3=error,symphonia_core=error")).init();
     // not set up yet (or CRATE_SETUP=1): the window opens on the setup screens instead
     let client = Client::from_crate_config().ok().filter(|_| std::env::var("CRATE_SETUP").is_err());
     gpui_platform::application().with_assets(Assets).run(move |cx: &mut App| {
